@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.white.dao.StudentDao">
+    <cache eviction="FIFO" type="org.mybatis.caches.redis.RedisCache" />
+    <select id="selectScore" resultType="java.util.HashMap" useCache="true" parameterType="hashmap">
+        select s.*,ct.class_name,ct.class_term,ct.class_year,t.tea_name from [diplomaProject ].dbo.score s left join
+        [diplomaProject ].dbo.student_class sc on
+        s.class_id=sc.class_id and s.stu_id=sc.stu_id left join [diplomaProject ].dbo.class_table ct on
+        sc.class_id=ct.class_id left join
+        [diplomaProject ].dbo.teacher
+        t on
+        ct.tea_id=t.tea_id
+        <where>
+            sc.stu_id=#{stu_id}
+            <if test="class_year!=null">
+                and ct.class_year=#{class_year}
+            </if>
+            <if test="class_term!=null and class_year!=null">
+                and ct.class_term=#{class_term}
+            </if>
+            <if test="class_name!=null">
+                <foreach collection="class_name" item="item">
+                    and ct.class_name like CONCAT('%', #{item}, '%')
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,40 @@
+socket:
+  client:
+    enable-suf: true
+    suffix: Impl
+    server:
+      - { port: 9999, host: 127.0.0.1 ,weight: 1 }
+      - { port: 9998, host: 127.0.0.1 ,weight: 2 }
+      - { port: 9997, host: 127.0.0.1 ,weight: 3 }
+    keep-time: 300
+    enable: true
+    default-load: true
+    load-algorithm: com.white.Config.SocketServerConfig
+    lazy: true
+jwt:
+  expiration: 604800000
+  header: authorization
+login:
+  redirectUrl: http://192.168.1.47                              
+server:
+  jetty:
+    threads:
+      acceptors: 9
+      selectors: 9
+      idle-timeout: 30000
+      min: 10
+    accesslog:
+      enabled: true
+  servlet:
+    encoding:
+      enabled: true
+      charset: UTF-8
+  port: 8080
+spring:
+  thymeleaf:
+    encoding: utf-8
+logging:
+  charset:
+    console: utf-8
+  pattern:
+    console: '%boldMagenta(%d{yyyy-MM-dd HH:mm:ss})  [%p]  %highlight(%C:%L)  : %m %n'

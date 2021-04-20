@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.white.dao.TeacherDao">
+<!--    <cache eviction="FIFO" type="org.mybatis.caches.redis.RedisCache" />-->
+    <insert id="insertStudent" parameterType="com.white.pojo.Student" flushCache="true">
+        if (select
+        1
+        from
+        [diplomaProject ].dbo.student s
+        where
+        stu_id = #{stuId}) is null begin insert
+        into
+        [diplomaProject ]
+        .dbo.student
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="stuId!=null">stu_id,</if>
+            <if test="stuName!=null">stu_name,</if>
+            <if test="stuClass!=null">stu_class,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="stuId!=null">#{stuId},</if>
+            <if test="stuName!=null">#{stuName},</if>
+            <if test="stuClass!=null">#{stuClass}</if>
+        </trim>
+        end
+    </insert>
+    <insert id="insertStuClass" flushCache="true">
+        if not exists(
+                select stu_id,
+                       class_id
+                from [diplomaProject ].dbo.student_class
+                where stu_id = #{stuId}
+                    and class_id = #{classId}
+                   or 0 = (
+                    select count(*)
+                    from [diplomaProject ].dbo.class_table
+                    where class_id = #{classId}
+                      and tea_id = #{teaId}
+                )
+            )
+            insert
+            into [diplomaProject ]
+                .dbo.student_class (stu_id, class_id)
+            values (#{stuId}, #{classId});
+    </insert>
+    <insert id="insertStudentCount" flushCache="true">
+        insert
+        into [diplomaProject ]
+            .dbo.count (count_id, count_salt, count_pwd, count_info)
+        values (#{countId}, #{countSalt}, #{countPwd}, #{countInfo})
+    </insert>
+    <insert id="insetScore" flushCache="true" parameterType="com.white.pojo.Score">
+        if (SELECT 1
+            FROM [diplomaProject ].dbo.score
+            WHERE class_id = #{classId}
+              and stu_id = #{ stuId}) is null
+            begin
+                insert
+                into [diplomaProject ]
+                    .dbo.score (class_id, stu_id, score_value)
+                values (#{classId}, #{ stuId}, #{ scoreValue})
+            end
+    </insert>
+    <insert id="insertClass" flushCache="true">
+        if (select 1
+            from [diplomaProject ].dbo.class_table
+            where class_id = #{classId}) is null
+            begin
+                insert
+                into [diplomaProject ]
+                    .dbo.class_table (class_id, class_name, tea_id, class_year, class_term)
+                values (#{classId}, #{className}, #{teaId}, #{classYear}, #{classTerm})
+            end
+    </insert>
+    <update id="updateScore">
+        if (select 1
+            from [diplomaProject ].dbo.class_table
+            where tea_id = #{teaId}
+              and class_id = #{classId}) is not null
+            begin
+                update [diplomaProject ].dbo.score
+                set score_value=#{scoreValue}
+                where stu_id = #{stuId}
+                  and class_id = #{classId}
+            end
+    </update>
+    <select id="queryStudent" resultType="java.util.HashMap">
+        select st.stu_id, st.stu_name, ct.class_name, st.stu_class
+        from [diplomaProject ].dbo.class_table ct
+        left join [diplomaProject ].dbo.student_class sc
+        on sc.class_id = ct.class_id
+        left join [diplomaProject ].dbo.student st on sc.stu_id = st.stu_id
+        <where>
+            ct.tea_id = #{tea_id}
+            <if test="classId!=-1 and classId!= null">
+                and ct.class_id = #{classId}
+            </if>
+        </where>
+    </select>
+    <select id="queryClassName" resultType="com.white.pojo.ClassTable">
+        select class_name, class_id
+        from [diplomaProject ].dbo.class_table
+        where tea_id = #{teaId}
+    </select>
+    <select id="queryFuc1" resultMap="query">
+        select s.stu_id, stu_name, sc.class_id, ct.class_name
+        from [diplomaProject ].dbo.student s
+                 left join [diplomaProject ].dbo.student_class sc on sc.stu_id = s.stu_id
+                 left join [diplomaProject ].dbo.class_table ct on ct.class_id = sc.class_id
+    </select>
+    <select id="queryStuScoreIsJoinTea" resultMap="query">
+        select s.stu_id,
+               s.stu_name,
+               sc.class_id,
+               ct.class_name
+        from [diplomaProject ].dbo.student s
+                 join
+             [diplomaProject ].dbo.student_class sc
+             on s.stu_id = sc.stu_id
+                 join
+             [diplomaProject ].dbo.class_table ct
+             on sc.class_id = ct.class_id
+        where sc.class_id not in (
+            select s3.class_id
+            from [diplomaProject ].dbo.score s3
+            where sc.class_id = s3.class_id
+              and s3.stu_id = s.stu_id
+        )
+          and ct.tea_id = #{teaId}
+    </select>
+    <select id="queryFuc2" resultType="com.white.pojo.Score">
+        select s.class_id, s.stu_id
+        from [diplomaProject ].dbo.score s
+        left join [diplomaProject ].dbo.class_table ct on ct.class_id = s.class_id
+        <where>
+            ct.tea_id=#{teaId}
+        </where>
+    </select>
+    <select id="queryClass" resultType="com.white.pojo.ClassTable">
+        select *
+        from [diplomaProject ].dbo.class_table ct
+        where tea_id = #{teaId};
+    </select>
+    <select id="queryStuSum" resultType="java.lang.Integer">
+        select count(class_id)
+        from [diplomaProject ].dbo.student_class sc
+        where class_id = #{classId}
+    </select>
+    <select id="queryScore" resultMap="query">
+        select s.stu_id, s.stu_name, ct.class_name, ct.class_id, s2.score_value
+        from [diplomaProject ].dbo.student s
+                 join [diplomaProject ].dbo.score s2 on s2.stu_id = s.stu_id
+                 join [diplomaProject ].dbo.class_table ct on ct.class_id = s2.class_id
+        where tea_id = #{teaId}
+    </select>
+    <resultMap id="query" type="com.white.pojo.Student">
+        <id column="stu_id" jdbcType="BIGINT" property="stuId"/>
+        <result column="stu_name" property="stuName"/>
+        <collection property="classTable" ofType="com.white.pojo.ClassTable">
+            <id property="classId" column="class_id"/>
+            <result property="className" column="class_name"/>
+            <result property="classTerm" column="class_term"/>
+            <result property="classYear" column="class_year"/>
+            <result property="teaId" column="tea_id"/>
+            <result property="scoreValue" column="score_Value"/>
+        </collection>
+    </resultMap>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.white.dao.ICountAdminDao">
+    <cache eviction="FIFO" type="org.mybatis.caches.redis.RedisCache" />
+    <insert id="addTea" flushCache="true">
+        if (select 1
+            from [diplomaProject ].dbo.teacher t
+            where t.tea_id = #{teaId}) is null
+            begin
+                insert into [diplomaProject ].dbo.teacher (tea_id, tea_name) values (#{teaId}, #{teaName})
+            end
+
+    </insert>
+    <select id="queryName" resultType="java.lang.String">
+        if (select c.count_info
+            from [diplomaProject ].dbo.count c
+            where c.count_id = #{id}) = 1
+            begin
+                select s.stu_name
+                from [diplomaProject ].dbo.student s
+                where s.stu_id = #{id};
+            end
+        else
+            begin
+                select t.tea_name
+                from [diplomaProject ].dbo.teacher t
+                where tea_id = #{id}
+            end
+    </select>
+</mapper>
