@@ -1,0 +1,60 @@
+import Vue from "vue";
+import {
+    Aside,
+    Breadcrumb,
+    BreadcrumbItem,
+    Button,
+    Card,
+    Container,
+    Dialog,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    Footer,
+    Form,
+    FormItem,
+    Header,
+    Image,
+    Input,
+    Main,
+    Menu,
+    MenuItem,
+    Option,
+    Pagination,
+    Popover,
+    Radio,
+    RadioGroup,
+    Select,
+    Submenu,
+    Table,
+    TableColumn
+} from "element-ui";
+
+Vue.use(Menu)
+Vue.use(Table);
+Vue.use(MenuItem)
+Vue.use(TableColumn)
+Vue.use(Card)
+Vue.use(DropdownItem)
+Vue.use(FormItem)
+Vue.use(Form)
+Vue.use(Dropdown)
+Vue.use(DropdownMenu)
+Vue.use(Aside)
+Vue.use(Container)
+Vue.use(Header);
+Vue.use(Button)
+Vue.use(Popover)
+Vue.use(Submenu)
+Vue.use(Input)
+Vue.use(Option)
+Vue.use(Select)
+Vue.use(BreadcrumbItem)
+Vue.use(Breadcrumb)
+Vue.use(Pagination)
+Vue.use(Main)
+Vue.use(Radio)
+Vue.use(RadioGroup)
+Vue.use(Image)
+Vue.use(Dialog)
+Vue.use(Footer)
